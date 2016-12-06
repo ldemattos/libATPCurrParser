@@ -37,13 +37,10 @@ def parseATPCurr(inputLis):
 	}
 	
 	# Opening lis-file 
-	print "Opening lis-file..."
 	try:
 		fpLis = open(inputLis, 'r')
-		print "... OK!\n"
 	except IOError:
 		return(None)
-		quit()
 	
 	# Map file into memory
 	mpLis = mmap.mmap(fpLis.fileno(), 0, access=mmap.ACCESS_READ)
