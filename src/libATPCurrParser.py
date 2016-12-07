@@ -49,7 +49,7 @@ def parseATPCurr(inputLis):
 	switchCurKey = "Output for steady-state phasor switch currents."
 	switchCurKeyEnd = "Solution at nodes with known voltage."
 	try: 
-		pos_switchCurKeyEnd = mpLis.find(switchCurKeyEnd)
+		pos_switchCurKeyEnd = mpLis.find(switchCurKeyEnd) - 4
 		pos_switchCurKey = mpLis.find(switchCurKey,0,pos_switchCurKeyEnd)
 	except ValueError:
 		print "Not valid lis-file"
@@ -59,29 +59,43 @@ def parseATPCurr(inputLis):
 	p = pos_switchCurKey + len(switchCurKey) + 126 + 2
 	
 	# Actually parse the file
-	j = 0
 	dataList = []
-	while((j+1)*131+p < pos_switchCurKeyEnd):
-		
+	while(p < pos_switchCurKeyEnd):
+
 		# New data dict
 		data = dataSet.copy()
 		
-		# Treat lis-file
-		line = mpLis[j*131+p:(j+1)*131+p].strip().split()
+		# Check for open switch
+		if mpLis.find("Open",p,p+131) == -1:
+		
+			# Treat lis-file switch line
+			line = mpLis[p:p+131].strip().split()
 
-		# Save data
-		data['Node-K'] = line[0]
-		data['Node-M'] = line[1]
-		data['Ire'] = float(line[2])
-		data['Iim'] = float(line[3])
-		data['Imod'] = float(line[4])
-		data['Iang'] = float(line[5])
-		data['P'] = float(line[6])
-		data['Q'] = float(line[7])		
+			# Read data and save
+			data['Node-K'] = line[0]
+			data['Node-M'] = line[1]		
+			data['Ire'] = float(line[2])
+			data['Iim'] = float(line[3])
+			data['Imod'] = float(line[4])
+			data['Iang'] = float(line[5])
+			data['P'] = float(line[6])
+			data['Q'] = float(line[7])
+			
+			p += 131
+
+		else:
+			
+			# Treat lis-file switch line
+			line = mpLis[p:p+125].strip().split()
+
+			# Read data and save
+			data['Node-K'] = line[0]
+			data['Node-M'] = line[1]		
+		
+			p += 125
+			
 		dataList.append(data)
 		
-		j += 1
-
 	# Close lis-file
 	fpLis.close
 
